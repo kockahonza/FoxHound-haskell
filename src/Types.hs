@@ -86,19 +86,6 @@ data Dialog = Dialog {
     _func       :: String -> GameState -> Either (Maybe GameState) (IO GameState)
                      }
 
-instance Show Dialog where
-    show (Dialog t l i m e _) = "Dialog {_title = " ++
-                                show t ++
-                                ", _inputLen = " ++
-                                show l ++
-                                ", _input = " ++
-                                show i ++
-                                ", _dialogMsg = " ++
-                                show m ++
-                                ", _dialogErrMsg" ++
-                                show e ++
-                                ", _func = ?}"
-
 --GameState---------------------------------------------------------------------
 
 data Focus = OnBoard | OnMenu deriving Show
@@ -108,7 +95,7 @@ data GameState = GS {
     _board      :: Board,
     _menu       :: Menu,
     _dialog     :: Maybe Dialog
-                    } deriving Show
+                    }
 
 makeLenses ''GameState
 makeLenses ''Board
