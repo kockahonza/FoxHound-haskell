@@ -9,6 +9,7 @@ import Linear.V2
 import Lens.Micro
 import Lens.Micro.TH (makeLenses)
 
+
 --Board-------------------------------------------------------------------------
 
 data Team = Fox | Hound deriving Eq
@@ -35,7 +36,7 @@ col = lens (\(V2 _ c) -> c) (\(V2 r _) c -> V2 r c)
 
 --Menu--------------------------------------------------------------------------
 
-data MenuEntry = NewGame | SaveGame | LoadGame deriving Show
+data MenuEntry = NewGame | SaveGame | LoadGame | QuitGame deriving Show
 
 data Menu = Menu {
     _selected   :: Int,
@@ -50,7 +51,7 @@ data Dialog = Dialog {
     _input      :: String,
     _message    :: String,
     _errMsg     :: String,
-    _func       :: String -> GameState -> Maybe GameState
+    _func       :: String -> GameState -> Either (Maybe GameState) (IO GameState)
                      }
 
 instance Show Dialog where

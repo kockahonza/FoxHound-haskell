@@ -13,8 +13,8 @@ import qualified Brick.Widgets.Core as W
 import qualified Brick.Widgets.Border as B
 import qualified Brick.Widgets.Center as C
 
-f :: String -> GameState -> Maybe GameState
-f _ gs = Nothing
+f :: String -> GameState -> Either (Maybe GameState) (IO GameState)
+f _ gs = Left Nothing
 
 defDialog = Dialog "Enter blablablah" 80 "" "" "Enter a valid number between 1 and 4 including" f
 
@@ -29,14 +29,15 @@ drawDialog d = C.center $ B.border $ W.padLeftRight 10 $ W.vBox [
 dropLastChar :: String -> String
 dropLastChar str = take (length str - 1) str
 
-handleDialog :: BrickEvent n e -> GameState -> GameState
+handleDialog :: BrickEvent n e -> GameState -> EventM n (Next GameState)
 handleDialog (VtyEvent (V.EvKey key _)) gs = case key of
-    V.KChar c -> gs & (dialog . _Just . input) %~ (++[c])
-    V.KBS     -> gs & (dialog . _Just . input) %~ dropLastChar
+    V.KChar c -> continue $ gs & (dialog . _Just . input) %~ (++[c])
+    V.KBS     -> continue $ gs & (dialog . _Just . input) %~ dropLastChar
     V.KEnter  -> case (gs ^?! dialog . _Just . func) (gs ^. dialog . _Just . input) gs of
-        (Just newGs)    -> newGs
-        _               -> gs & (dialog . _Just . message) .~ (gs ^. (dialog . _Just . errMsg))
-    _         -> gs
+            (Left Nothing)      -> continue $ gs & (dialog . _Just . message) .~ (gs ^. (dialog . _Just . errMsg))
+            (Left (Just newGS)) -> continue newGS
+            (Right gsIO)        -> suspendAndResume gsIO
+    _         -> continue $ gs
 
 inputAName :: AttrName
 inputAName = attrName "input"

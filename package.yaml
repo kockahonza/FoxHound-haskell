@@ -27,6 +27,8 @@ dependencies:
 - microlens-th
 - microlens
 - linear
+- split
+- directory
 
 library:
   source-dirs: src

@@ -8,6 +8,7 @@ module Menu (
 
 import Types
 import Board
+import IO
 
 import Text.Read
 
@@ -20,7 +21,7 @@ import qualified Brick.Widgets.Core as W
 
 --some global stuff-------------------------------------------------------------
 
-defMenu = Menu 1 [NewGame, SaveGame, LoadGame]
+defMenu = Menu 1 [NewGame, SaveGame, LoadGame, QuitGame]
 
 --board drawing-----------------------------------------------------------------
 
@@ -36,26 +37,36 @@ menuEntryLabel :: MenuEntry -> String
 menuEntryLabel NewGame = "New Game"
 menuEntryLabel SaveGame = "Save Game"
 menuEntryLabel LoadGame = "Load Game"
+menuEntryLabel QuitGame = "Quit Game"
 
 --event handling----------------------------------------------------------------
 
-handleMenu :: BrickEvent n e -> GameState -> GameState
+handleMenu :: BrickEvent n e -> GameState -> EventM n (Next GameState)
 handleMenu (VtyEvent (V.EvKey key _)) gs = case key of
-    V.KUp       -> gs & (menu . selected) %~ (\x -> max 1 (x - 1))
-    V.KDown     -> gs & (menu . selected) %~ (\x -> min (length (gs ^. (menu . entries))) (x + 1))
+    V.KUp       -> continue $ gs & (menu . selected) %~ (\x -> max 1 (x - 1))
+    V.KDown     -> continue $ gs & (menu . selected) %~ (\x -> min (length (gs ^. (menu . entries))) (x + 1))
     V.KEnter    -> case (gs ^. menu . entries) !! (gs ^. menu . selected - 1) of
-                     NewGame -> gs & dialog .~ Just newGameDialog
-    _           -> gs
+                     NewGame    -> continue $ gs & dialog .~ Just newGameDialog
+                     SaveGame   -> continue $ gs & dialog .~ Just saveGameDialog
+                     QuitGame   -> halt gs
+                     _          -> continue gs
+    _           -> continue $ gs
 
 --Dialogs-----------------------------------------------------------------------
 
 newGameDialog :: Dialog
 newGameDialog = Dialog "Enter dimensions" 80 "" "" "Enter an integer between 4 and 26" newGameFunc
 
-newGameFunc :: String -> GameState -> Maybe GameState
+newGameFunc :: String -> GameState -> Either (Maybe GameState) (IO GameState)
 newGameFunc str gs = case readMaybe str :: Maybe Int of
-    Nothing     -> Nothing
-    Just newDim -> Just $ gs & board .~ initializeBoard newDim & focus .~ OnBoard & dialog .~ Nothing
+    Nothing     -> Left Nothing
+    Just newDim -> Left $ Just $ gs & board .~ initializeBoard newDim & focus .~ OnBoard & dialog .~ Nothing
+
+saveGameDialog :: Dialog
+saveGameDialog = Dialog "Enter path to save board state" 80 "" "" "The enterd path is not valid" saveGameFunc
+
+saveGameFunc :: String -> GameState -> Either (Maybe GameState) (IO GameState)
+saveGameFunc str gs = Right $ saveGS str gs
 
 --attributes--------------------------------------------------------------------
 
