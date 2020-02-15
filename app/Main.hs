@@ -19,6 +19,8 @@ import qualified Brick.Widgets.Center as C
 
 --some global values------------------------------------------------------------
 
+defBoard = initializeBoard 8
+defMenu = Menu 1 [NewGame, SaveGame, LoadGame, QuitGame]
 defGS = GS OnBoard defBoard defMenu Nothing
 
 --------------------------------------------------------------------------------
@@ -43,12 +45,9 @@ drawMain gs = [C.center $ W.hBox $ case gs ^. focus of
         borderedMenu  = B.border $ W.padLeftRight 5 $ W.padTopBottom 5 $ menuWidget (gs ^. menu)
 
 handleMain :: GameState -> BrickEvent n e -> EventM n (Next GameState)
-handleMain gs (VtyEvent (V.EvKey (V.KChar 'c') [V.MCtrl])) = halt gs
 handleMain gs@(GS _ _ _ (Just d)) e = handleDialog e gs
 handleMain (GS OnBoard b m d) (VtyEvent (V.EvKey (V.KChar '\t') _)) = continue (GS OnMenu b m d)
-handleMain (GS OnMenu b m d) (VtyEvent (V.EvKey (V.KChar '\t') _))
-  | isNothing (b ^. won) = continue (GS OnBoard b m d)
-  | otherwise            = continue (GS OnMenu b m d)
+handleMain (GS OnMenu b m d)  (VtyEvent (V.EvKey (V.KChar '\t') _)) = continue (GS OnBoard b m d)
 handleMain gs e = case gs ^. focus of
                   OnBoard   -> continue $ gs & board %~ handleBoard e
                   OnMenu    -> handleMenu e gs
@@ -58,6 +57,5 @@ attrMapMain = const (attrMap V.defAttr (boardAttrMappings ++ menuAttrMappings ++
 
 main :: IO ()
 main = do
-    fs <- defaultMain (mainApp :: App GameState e ()) defGS
-    print (fs ^. board)
-    return ()
+    defaultMain (mainApp :: App GameState e ()) defGS
+    print "Thanks for playing"

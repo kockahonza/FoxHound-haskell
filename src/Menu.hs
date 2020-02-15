@@ -1,6 +1,4 @@
 module Menu (
-    Menu,
-    defMenu,
     menuWidget,
     handleMenu,
     menuAttrMappings
@@ -18,10 +16,6 @@ import qualified Graphics.Vty as V
 
 import Brick
 import qualified Brick.Widgets.Core as W
-
---some global stuff-------------------------------------------------------------
-
-defMenu = Menu 1 [NewGame, SaveGame, LoadGame, QuitGame]
 
 --board drawing-----------------------------------------------------------------
 
@@ -48,8 +42,8 @@ handleMenu (VtyEvent (V.EvKey key _)) gs = case key of
     V.KEnter    -> case (gs ^. menu . entries) !! (gs ^. menu . selected - 1) of
                      NewGame    -> continue $ gs & dialog .~ Just newGameDialog
                      SaveGame   -> continue $ gs & dialog .~ Just saveGameDialog
+                     LoadGame   -> continue $ gs & dialog .~ Just loadGameDialog
                      QuitGame   -> halt gs
-                     _          -> continue gs
     _           -> continue $ gs
 
 --Dialogs-----------------------------------------------------------------------
@@ -67,6 +61,12 @@ saveGameDialog = Dialog "Enter path to save board state" 80 "" "" "The enterd pa
 
 saveGameFunc :: String -> GameState -> Either (Maybe GameState) (IO GameState)
 saveGameFunc str gs = Right $ saveGS str gs
+
+loadGameDialog :: Dialog
+loadGameDialog = Dialog "Enter path to save board state" 80 "" "" "The enterd path is not valid" loadGameFunc
+
+loadGameFunc :: String -> GameState -> Either (Maybe GameState) (IO GameState)
+loadGameFunc str gs = Right $ loadGS str gs
 
 --attributes--------------------------------------------------------------------
 

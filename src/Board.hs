@@ -1,11 +1,9 @@
 module Board (
-    Board(),
-    won,
-    defBoard,
     initializeBoard,
     boardWidget,
     handleBoard,
-    boardAttrMappings
+    boardAttrMappings,
+    checkWin
 ) where
 
 import Types
@@ -24,13 +22,11 @@ import qualified Brick.Widgets.Core as W
 
 --some global stuff-------------------------------------------------------------
 
-defBoard = initializeBoard 8
-
 foxAllowedMoves = [V2 r c | r <- [-1, 1], c <- [-1, 1]]
 houndsAllowedMoves = [V2 1 c | c <- [-1, 1]]
 
 initializeBoard :: Int -> Board
-initializeBoard dim = Board dim (V2 1 1) Nothing Fox fox hounds Nothing "Welcome, press Ctrl+C to exit"
+initializeBoard dim = Board dim (V2 1 1) Nothing Fox fox hounds Nothing ""
     where
         fox = V2 dim (if even dim then 1 + 2 * ((dim + 1) `div` 4) else 2 + 2 * (dim `div` 4))
         hounds = map (V2 1) [2,4..dim]
@@ -38,7 +34,7 @@ initializeBoard dim = Board dim (V2 1 1) Nothing Fox fox hounds Nothing "Welcome
 --board drawing-----------------------------------------------------------------
 
 boardWidget :: Board -> Widget n
-boardWidget bs = W.vBox $ infoWidget : intersperse vDelimitWidget lineWidgets ++ [str (bs ^. debug)]
+boardWidget bs = W.vBox $ infoWidget : intersperse vDelimitWidget lineWidgets ++ [str (bs ^. boardMsg)]
     where
         d = bs ^. dim
         dDigits = 1 + floor (logBase 10 (fromIntegral d :: Float)) :: Int
@@ -50,12 +46,11 @@ boardWidget bs = W.vBox $ infoWidget : intersperse vDelimitWidget lineWidgets ++
                         Nothing         -> case bs ^. turn of
                                             Fox -> str "Fox to move"
                                             Hound -> str "Hounds to move"
-        -- vDelimitWidget = str "  |===|===|===|===|===|===|===|===|"
         vDelimitWidget = str $ prefixSpacing ++ concat (replicate d "|===") ++ "|"
         hLegendWidget = str (prefixSpacing ++ "  " ++ intercalate "   " (map (:[]) (take d ['A'..'Z'])))
-        lineWidgets = hLegendWidget : _rowWidgets ++ [hLegendWidget]
-        _rowWidgets = [_rowWidget r | r <- [1..d]]
-        _rowWidget r = W.hBox $ intersperse hDelimitWidget boxWidgets
+        lineWidgets = hLegendWidget : rowWidgets ++ [hLegendWidget]
+        rowWidgets = [rowWidget r | r <- [1..d]]
+        rowWidget r = W.hBox $ intersperse hDelimitWidget boxWidgets
             where
                 hDelimitWidget = str " | "
                 vLegendWidget = str (printf vLegWForStr r)
@@ -67,8 +62,8 @@ boardWidget bs = W.vBox $ infoWidget : intersperse vDelimitWidget lineWidgets ++
                   | otherwise = str $ posToLabel p
                     where
                         posToLabel o
-                          | o == _fox bs = "F"
-                          | o `elem` _hounds bs = "H"
+                          | o == bs ^. fox = "F"
+                          | o `elem` bs ^. hounds = "H"
                           | otherwise = " "
 
 --event handling----------------------------------------------------------------

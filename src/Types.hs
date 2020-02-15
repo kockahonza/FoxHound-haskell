@@ -2,7 +2,37 @@
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE StandaloneDeriving #-}
 
-module Types where
+module Types (
+    Team(..),
+    Board(..),
+    dim,
+    cursor,
+    marked,
+    turn,
+    fox,
+    hounds,
+    won,
+    boardMsg,
+    row,
+    col,
+    MenuEntry(..),
+    Menu(..),
+    selected,
+    entries,
+    Dialog(..),
+    title,
+    inputLen,
+    input,
+    dialogMsg,
+    dialogErrMsg,
+    func,
+    Focus(..),
+    GameState(..),
+    focus,
+    board,
+    menu,
+    dialog
+) where
 
 import Linear.V2
 
@@ -12,11 +42,7 @@ import Lens.Micro.TH (makeLenses)
 
 --Board-------------------------------------------------------------------------
 
-data Team = Fox | Hound deriving Eq
-
-instance Show Team where
-    show Fox = "F"
-    show Hound = "H"
+data Team = Fox | Hound deriving (Eq, Show, Read)
 
 data Board = Board {
     _dim        :: Int,
@@ -26,8 +52,14 @@ data Board = Board {
     _fox        :: V2 Int,
     _hounds     :: [V2 Int],
     _won        :: Maybe Team,
-    _debug      :: String
+    _boardMsg      :: String
                    } deriving Show
+
+instance Eq Board where
+    (Board d _ _ t f hs _ _) == (Board d' _ _ t' f' hs' _ _) = d == d
+                                                            && t == t
+                                                            && f == f
+                                                            && hs == hs
 
 row :: Lens' (V2 Int) Int
 row = lens (\(V2 r _) -> r) (\(V2 _ c) r -> V2 r c)
@@ -49,8 +81,8 @@ data Dialog = Dialog {
     _title      :: String,
     _inputLen   :: Int,
     _input      :: String,
-    _message    :: String,
-    _errMsg     :: String,
+    _dialogMsg    :: String,
+    _dialogErrMsg     :: String,
     _func       :: String -> GameState -> Either (Maybe GameState) (IO GameState)
                      }
 
@@ -61,9 +93,9 @@ instance Show Dialog where
                                 show l ++
                                 ", _input = " ++
                                 show i ++
-                                ", _message = " ++
+                                ", _dialogMsg = " ++
                                 show m ++
-                                ", _errMsg" ++
+                                ", _dialogErrMsg" ++
                                 show e ++
                                 ", _func = ?}"
 
