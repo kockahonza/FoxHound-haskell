@@ -1,21 +1,21 @@
 module Main where
 
-import Types
-import Board
-import Menu
-import Dialog
+import           Board
+import           Dialog
+import           Menu
+import           Types
 
-import Data.Maybe
+import           Data.Maybe
 
-import Lens.Micro
+import           Lens.Micro
 
-import qualified Graphics.Vty as V
+import qualified Graphics.Vty               as V
 
-import Brick
-import qualified Brick.Widgets.Core as W
-import qualified Brick.Widgets.Border as B
+import           Brick
+import qualified Brick.Widgets.Border       as B
 import qualified Brick.Widgets.Border.Style as BS
-import qualified Brick.Widgets.Center as C
+import qualified Brick.Widgets.Center       as C
+import qualified Brick.Widgets.Core         as W
 
 --some global values------------------------------------------------------------
 
@@ -49,8 +49,8 @@ handleMain gs@(GS _ _ _ (Just d)) e = handleDialog e gs
 handleMain (GS OnBoard b m d) (VtyEvent (V.EvKey (V.KChar '\t') _)) = continue (GS OnMenu b m d)
 handleMain (GS OnMenu b m d)  (VtyEvent (V.EvKey (V.KChar '\t') _)) = continue (GS OnBoard b m d)
 handleMain gs e = case gs ^. focus of
-                  OnBoard   -> continue $ gs & board %~ handleBoard e
-                  OnMenu    -> handleMenu e gs
+                  OnBoard -> continue $ gs & board %~ handleBoard e
+                  OnMenu  -> handleMenu e gs
 
 attrMapMain :: GameState -> AttrMap
 attrMapMain = const (attrMap V.defAttr (boardAttrMappings ++ menuAttrMappings ++ dialogAttrMappings))

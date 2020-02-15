@@ -1,6 +1,6 @@
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE ExistentialQuantification #-}
-{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE StandaloneDeriving        #-}
+{-# LANGUAGE TemplateHaskell           #-}
 
 module Types (
     Team(..),
@@ -34,26 +34,29 @@ module Types (
     dialog
 ) where
 
-import Linear.V2
+import           Linear.V2
 
-import Lens.Micro
-import Lens.Micro.TH (makeLenses)
+import           Lens.Micro
+import           Lens.Micro.TH (makeLenses)
 
 
 --Board-------------------------------------------------------------------------
 
-data Team = Fox | Hound deriving (Eq, Show, Read)
+data Team = Fox
+    | Hound
+    deriving (Eq, Show, Read)
 
-data Board = Board {
-    _dim        :: Int,
-    _cursor     :: V2 Int,
-    _marked     :: Maybe (V2 Int),
-    _turn       :: Team,
-    _fox        :: V2 Int,
-    _hounds     :: [V2 Int],
-    _won        :: Maybe Team,
-    _boardMsg      :: String
-                   } deriving Show
+data Board = Board
+    { _dim      :: Int
+    , _cursor   :: V2 Int
+    , _marked   :: Maybe (V2 Int)
+    , _turn     :: Team
+    , _fox      :: V2 Int
+    , _hounds   :: [V2 Int]
+    , _won      :: Maybe Team
+    , _boardMsg :: String
+    }
+    deriving Show
 
 instance Eq Board where
     (Board d _ _ t f hs _ _) == (Board d' _ _ t' f' hs' _ _) = d == d
@@ -68,34 +71,41 @@ col = lens (\(V2 _ c) -> c) (\(V2 r _) c -> V2 r c)
 
 --Menu--------------------------------------------------------------------------
 
-data MenuEntry = NewGame | SaveGame | LoadGame | QuitGame deriving Show
+data MenuEntry = NewGame
+    | SaveGame
+    | LoadGame
+    | QuitGame
+    deriving Show
 
-data Menu = Menu {
-    _selected   :: Int,
-    _entries    :: [MenuEntry]
-                 } deriving Show
+data Menu = Menu
+    { _selected :: Int
+    , _entries  :: [MenuEntry]
+    }
+    deriving Show
 
 --Dialog------------------------------------------------------------------------
 
-data Dialog = Dialog {
-    _title      :: String,
-    _inputLen   :: Int,
-    _input      :: String,
-    _dialogMsg    :: String,
-    _dialogErrMsg     :: String,
-    _func       :: String -> GameState -> Either (Maybe GameState) (IO GameState)
-                     }
+data Dialog = Dialog
+    { _title :: String
+    , _inputLen :: Int
+    , _input :: String
+    , _dialogMsg :: String
+    , _dialogErrMsg :: String
+    , _func :: String -> GameState -> Either (Maybe GameState) (IO GameState)
+    }
 
 --GameState---------------------------------------------------------------------
 
-data Focus = OnBoard | OnMenu deriving Show
+data Focus = OnBoard
+    | OnMenu
+    deriving Show
 
-data GameState = GS {
-    _focus      :: Focus,
-    _board      :: Board,
-    _menu       :: Menu,
-    _dialog     :: Maybe Dialog
-                    }
+data GameState = GS
+    { _focus  :: Focus
+    , _board  :: Board
+    , _menu   :: Menu
+    , _dialog :: Maybe Dialog
+    }
 
 makeLenses ''GameState
 makeLenses ''Board

@@ -3,19 +3,19 @@ module IO (
     loadGS
 ) where
 
-import Types
-import Board
+import           Board
+import           Types
 
-import Data.Maybe
-import System.IO
-import Control.Exception
-import Text.Read
+import           Control.Exception
+import           Data.Maybe
+import           System.IO
+import           Text.Read
 
-import Lens.Micro
+import           Lens.Micro
 
-import Linear.V2
+import           Linear.V2
 
-import Data.List.Split
+import           Data.List.Split
 
 separator = "|"
 

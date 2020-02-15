@@ -4,16 +4,16 @@ module Dialog (
     dialogAttrMappings
 ) where
 
-import Types
+import           Types
 
-import Lens.Micro
+import           Lens.Micro
 
-import qualified Graphics.Vty as V
+import qualified Graphics.Vty         as V
 
-import Brick
-import qualified Brick.Widgets.Core as W
+import           Brick
 import qualified Brick.Widgets.Border as B
 import qualified Brick.Widgets.Center as C
+import qualified Brick.Widgets.Core   as W
 
 drawDialog :: Dialog -> Widget n
 drawDialog d = C.center $ B.border $ W.padLeftRight 10 $ W.vBox [

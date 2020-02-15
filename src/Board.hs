@@ -6,18 +6,18 @@ module Board (
     checkWin
 ) where
 
-import Types
+import           Types
 
-import Data.List
-import Text.Printf
+import           Data.List
+import           Text.Printf
 
-import Linear.V2
+import           Linear.V2
 
-import Lens.Micro
+import           Lens.Micro
 
-import qualified Graphics.Vty as V
+import qualified Graphics.Vty       as V
 
-import Brick
+import           Brick
 import qualified Brick.Widgets.Core as W
 
 --some global stuff-------------------------------------------------------------
@@ -44,7 +44,7 @@ boardWidget bs = W.vBox $ infoWidget : intersperse vDelimitWidget lineWidgets ++
                         (Just Fox)      -> withAttr wonAName $ str "Fox won"
                         (Just Hound)    -> withAttr wonAName $ str "Hounds won"
                         Nothing         -> case bs ^. turn of
-                                            Fox -> str "Fox to move"
+                                            Fox   -> str "Fox to move"
                                             Hound -> str "Hounds to move"
         vDelimitWidget = str $ prefixSpacing ++ concat (replicate d "|===") ++ "|"
         hLegendWidget = str (prefixSpacing ++ "  " ++ intercalate "   " (map (:[]) (take d ['A'..'Z'])))
@@ -75,8 +75,8 @@ handleBoard (VtyEvent (V.EvKey key _)) bs = case key of
     V.KRight    -> moveFieldBy col 1
     V.KLeft     -> moveFieldBy col (-1)
     V.KChar ' ' -> case bs ^. marked of
-                    Nothing     -> bs & marked ?~ (bs ^. cursor)
-                    _           -> checkWin $ tryMove bs
+                    Nothing -> bs & marked ?~ (bs ^. cursor)
+                    _       -> checkWin $ tryMove bs
     _           -> bs
     where
         moveFieldBy field by = bs & cursor . field %~ updateCoord by

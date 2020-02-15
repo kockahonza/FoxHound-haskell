@@ -4,17 +4,17 @@ module Menu (
     menuAttrMappings
 ) where
 
-import Types
-import Board
-import IO
+import           Board
+import           IO
+import           Types
 
-import Text.Read
+import           Text.Read
 
-import Lens.Micro
+import           Lens.Micro
 
-import qualified Graphics.Vty as V
+import qualified Graphics.Vty       as V
 
-import Brick
+import           Brick
 import qualified Brick.Widgets.Core as W
 
 --board drawing-----------------------------------------------------------------
@@ -28,7 +28,7 @@ menuWidget mn = W.vBox finalWidgets
         finalWidgets = map snd (f1 ++ (fx:f2))
 
 menuEntryLabel :: MenuEntry -> String
-menuEntryLabel NewGame = "New Game"
+menuEntryLabel NewGame  = "New Game"
 menuEntryLabel SaveGame = "Save Game"
 menuEntryLabel LoadGame = "Load Game"
 menuEntryLabel QuitGame = "Quit Game"
